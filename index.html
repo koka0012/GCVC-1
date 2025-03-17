@@ -14,6 +14,8 @@
       const outputCanvas = document.getElementById("outputCanvas");
       const ctx = outputCanvas.getContext("2d");
 
+      console.log("TESTE")
+
       function rgbToHsv(r, g, b) {
         (r /= 255), (g /= 255), (b /= 255); // Normaliza os valores de r, g e b para o intervalo [0, 1]
         const max = Math.max(r, g, b),
