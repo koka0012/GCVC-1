@@ -83,7 +83,7 @@
 
           const [h, s, v] = rgbToHsv(r, g, b);
 
-          if ((h < 20 || h > 340) && s > 40 && v > 30) {
+          if ((h < 240 && h > 180) && s > 40 && v > 30) {
             mask[Math.floor(i / 4)] = 255;
           }
         }
@@ -113,6 +113,9 @@
           const maxX = Math.max(...region.map((pixel) => pixel.x))
           const minY = Math.min(...region.map((pixel) => pixel.y))
           const maxY = Math.max(...region.map((pixel) => pixel.y))
+
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
 
           ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
         });
