@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detecção de Cores</title>
+  </head>
+  <body>
+    <input type="file" id="imageInput" accept="images/*" />
+    <canvas id="outputCanvas" />
+
+    <script>
+      const imageInput = document.getElementById("imageInput");
+      const outputCanvas = document.getElementById("outputCanvas");
+      const ctx = outputCanvas.getContext("2d");
+
+      function rgbToHsv(r, g, b) {
+        (r /= 255), (g /= 255), (b /= 255); // Normaliza os valores de r, g e b para o intervalo [0, 1]
+        const max = Math.max(r, g, b),
+          min = Math.min(r, g, b); // Encontra o valor máximo e mínimo entre r, g e b
+        let h,
+          s,
+          v = max; // Inicializa h (matiz), s (saturação) e v (valor) com o valor máximo
+        const d = max - min; // Calcula a diferença entre o valor máximo e mínimo
+        s = max === 0 ? 0 : d / max; // Calcula a saturação; se max for 0, s é 0, caso contrário, é a diferença dividida pelo máximo
+
+        if (max === min) {
+          h = 0; // Se max e min são iguais, a matiz é 0 (não há cor)
+        } else {
+          switch (
+            max // Determina a matiz com base no valor máximo
+          ) {
+            case r:
+              h = (g - b) / d + (g < b ? 6 : 0);
+              break; // Se vermelho é o máximo
+            case g:
+              h = (b - r) / d + 2;
+              break; // Se verde é o máximo
+            case b:
+              h = (r - g) / d + 4;
+              break; // Se azul é o máximo
+          }
+          h /= 6; // Normaliza a matiz para o intervalo [0, 1]
+        }
+        return [h * 360, s * 100, v * 100]; // Retorna a matiz em graus (0-360), saturação e valor em porcentagem
+      }
+
+      function floodFill(x, y, mask, visited, width, height) {
+        const stack = [[x, y]];
+        const region = [];
+
+        while (stack.length > 0) {
+          const [cx, cy] = stack.pop();
+
+          const idx = cy * width + cx; // Pesquisar o índice do pixel atual
+          if (cx < 0 || cx >= width || cy < 0 || cy >= height) continue;
+
+          if (visited[idx] || mask[idx] !== 255) continue;
+
+          visited[idx] = true;
+          region.push({ x: cx, y: cy });
+
+          stack.push([cx + 1, cy]);
+          stack.push([cx - 1, cy]);
+          stack.push([cx, cy + 1]);
+          stack.push([cx, cy - 1]);
+        }
+
+        return region;
+      }
+
+      function processImage(file) {
+        ctx.drawImage(file, 0, 0);
+        const imageData = ctx.getImageData(0, 0, file.width, file.height);
+        const { data } = imageData;
+
+        const mask = new Uint8Array(imageData.width * imageData.height);
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          const [h, s, v] = rgbToHsv(r, g, b);
+
+          if ( v < 30) {
+            mask[Math.floor(i / 4)] = 255;
+          }
+        }
+
+        const visited = new Uint8Array(mask.length);
+        const regions = [];
+
+        for (let y = 0; y < file.height; y++) {
+          for (let x = 0; x < file.width; x++) {
+            const idx = y * file.width + x;
+            if (mask[idx] === 255 && !visited[idx]) {
+              const region = floodFill(
+                x,
+                y,
+                mask,
+                visited,
+                file.width,
+                file.height
+              );
+              regions.push(region);
+            }
+          }
+        }
+
+        regions.forEach((region) => {
+          const minX = Math.min(...region.map((pixel) => pixel.x))
+          const maxX = Math.max(...region.map((pixel) => pixel.x))
+          const minY = Math.min(...region.map((pixel) => pixel.y))
+          const maxY = Math.max(...region.map((pixel) => pixel.y))
+
+          ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+        });
+      }
+
+      imageInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const img = new Image();
+          img.onload = (event) => {
+            outputCanvas.width = img.width;
+            outputCanvas.height = img.height;
+
+            ctx.drawImage(img, 0, 0);
+            processImage(img);
+          };
+          img.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
