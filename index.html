@@ -83,7 +83,7 @@
 
           const [h, s, v] = rgbToHsv(r, g, b);
 
-          if ((h < 20 || h > 340) && s > 40 && v > 30) {
+          if (h > 100 && h < 140 && s > 50 && v > 50) {
             mask[Math.floor(i / 4)] = 255;
           }
         }
@@ -109,12 +109,12 @@
         }
 
         regions.forEach((region) => {
-          const minX = Math.min(...region.map((pixel) => pixel.x))
-          const maxX = Math.max(...region.map((pixel) => pixel.x))
-          const minY = Math.min(...region.map((pixel) => pixel.y))
-          const maxY = Math.max(...region.map((pixel) => pixel.y))
+          const minX = Math.min(...region.map((pixel) => pixel.x));
+          const maxX = Math.max(...region.map((pixel) => pixel.x));
+          const minY = Math.min(...region.map((pixel) => pixel.y));
+          const maxY = Math.max(...region.map((pixel) => pixel.y));
 
-          ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+          ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
         });
       }
 
