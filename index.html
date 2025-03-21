@@ -83,7 +83,7 @@
 
           const [h, s, v] = rgbToHsv(r, g, b);
 
-          if ((h < 20 || h > 340) && s > 40 && v > 30) {
+          if ((h > 20 && h < 120) && s > 50 && v > 30) {
             mask[Math.floor(i / 4)] = 255;
           }
         }
