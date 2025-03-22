@@ -11,4 +11,4 @@
 1. `image.jpeg` é uma imagem de exemplo, fique a vontade de usar qualquer uma.
 
 ## Como realizar a entrega?
-Para realizar a entrega abra um pull-request neste repositório sendo a base a branch `main` e a compare sendo **sua branch**.
+Para realizar a entrega abra um pull-request neste repositório sendo a base a branch `main` e a compare sendo **sua branch**..
